@@ -19,7 +19,7 @@ public class Test {
         Index5 index = new Index5();
         //|**  change it to your collection directory 
         //|**  in windows "C:\\tmp11\\rl\\collection\\"       
-        String files = "D:\\collage\\IR ass1\\tmp11\\tmp11\\rl\\collection\\";
+        String files = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl\\collection\\";
 
         File file = new File(files);
         //|** String[] 	list()
@@ -37,7 +37,9 @@ public class Test {
         index.store("index1");
         index.printDictionary();
 
-        String test3 = "data  should plain greatest comif"; // data  should plain greatest comif
+
+
+//        String test3 = "data  should plain greatest comif"; // data  should plain greatest comif
         String queryResult = "" ;
 //        if (!queryResult.isEmpty()) {
 //            System.out.println("Boo0lean Model result = \n" + queryResult);

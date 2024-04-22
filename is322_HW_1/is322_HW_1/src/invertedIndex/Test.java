@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.Phaser;
 
 /**
  *
@@ -16,7 +17,7 @@ import java.io.InputStreamReader;
 public class Test {
 
     public static void main(String args[]) throws IOException {
-        Index5 index = new Index5();
+        BiIndex index = new BiIndex();
         //|**  change it to your collection directory 
         //|**  in windows "C:\\tmp11\\rl\\collection\\"       
         String files = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl\\collection\\";
@@ -34,7 +35,7 @@ public class Test {
         }
 
         index.buildIndex(fileList);
-        index.store("index1");
+        index.store("BiIndex");
         index.printDictionary();
 
 
@@ -49,12 +50,33 @@ public class Test {
             System.out.println("Print search phrase: ");
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             phrase = in.readLine();
-            queryResult = index.find_24_01(phrase) ;
+            Boolean nonAutomated = true;
+
+            String temp1 = new String();
+            for (char c : phrase.toCharArray()) {
+               if (c == '\"' && nonAutomated){
+                   nonAutomated = false;
+                   continue;
+
+               }
+               if (!nonAutomated && c == ' '){
+                   c ='_';
+               }
+
+               if (!nonAutomated && c == '\"'){
+                   nonAutomated = true;
+                   continue;
+               }
+                temp1 += c;
+
+            }
+            phrase = temp1;
+            queryResult = index.find_24_01(phrase);
             if (!queryResult.isEmpty()) {
                 System.out.println("Boo0lean Model result = \n" + queryResult);
             }
 /// -3- **** complete here ****
         } while (!phrase.isEmpty());
 
-    }
+  }
 }

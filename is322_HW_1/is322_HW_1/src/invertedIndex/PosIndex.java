@@ -1,26 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package invertedIndex;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import static java.lang.Math.*;
-
-/**
- *
- * @author ehab
- */
-public class Index5 {
-
+public class PosIndex extends Index5 {
     //--------------------------------------------
     int N = 0;
     public Map<Integer, SourceRecord> sources;  // store the doc_id and the file name.
@@ -29,7 +14,7 @@ public class Index5 {
 
     //--------------------------------------------
 
-    public Index5() {
+    public PosIndex() {
 
         sources = new HashMap<Integer, SourceRecord>();
         index = new HashMap<String, DictEntry>();
@@ -78,7 +63,7 @@ public class Index5 {
         System.out.println("------------------------------------------------------");
         System.out.println("*** Number of terms = " + index.size());
     }
- 
+
     //-----------------------------------------------
     /** A method  to Build/Creat the index file */
     public void buildIndex(String[] files) {  // from disk not from the internet
@@ -99,6 +84,7 @@ public class Index5 {
 
                 //start reading file line by line
                 //while we have not reached the end of file
+                int pos = 0;
                 while ((ln = file.readLine()) != null) {
                     /// -2- **** complete here ****
                     //increase the file length by the number of words of each line
@@ -126,7 +112,7 @@ public class Index5 {
         int flen = 0;
         //remove the spaces between each word in the line read (split) and store in array
         String[] words = ln.split("\\W+");
-      //   String[] words = ln.replaceAll("(?:[^a-zA-Z0-9 -]|(?<=\\w)-(?!\\S))", " ").toLowerCase().split("\\s+");
+        //   String[] words = ln.replaceAll("(?:[^a-zA-Z0-9 -]|(?<=\\w)-(?!\\S))", " ").toLowerCase().split("\\s+");
 
         //add the length of the list to the file (on this case line length)
         flen += words.length;
@@ -149,7 +135,7 @@ public class Index5 {
             }
             // add document id to the posting list
             if (!index.get(word).postingListContains(fid)) {
-                index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term 
+                index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term
                 if (index.get(word).pList == null) {
                     index.get(word).pList = new Posting(fid);
                     index.get(word).last = index.get(word).pList;
@@ -184,7 +170,7 @@ public class Index5 {
         return false;
 
     }
-//----------------------------------------------------------------------------  
+//----------------------------------------------------------------------------
     /** A method stem word (bring it to original form )  Yet to be implemented */
     String stemWord(String word) { //skip for now
         return word;
@@ -227,7 +213,7 @@ public class Index5 {
                 pL2 = pL2.next ;
 //          5       p1 ← next ( p1 )
 //          6       p2 ← next ( p2 )
-            // if they don't have the same doc id and one is bigger, move the smaller to the next (as they are sorted )
+                // if they don't have the same doc id and one is bigger, move the smaller to the next (as they are sorted )
             }else {
 //          7   else if docID ( p1 ) < docID ( p2 )
                 if (pL1.docId < pL2.docId) {
@@ -250,7 +236,7 @@ public class Index5 {
         String[] words = phrase.split("\\W+");
         //get the length of the query
         int len = words.length;
-        
+
         //fix this if word is not in the hash table will crash...
         //try and catch statement to catch if a word doesn't exist in any document
         try {
@@ -279,8 +265,8 @@ public class Index5 {
         }
         return result;
     }
-    
-    
+
+
     //---------------------------------
     /** A method  to sort the words list of alphabetically  */
     String[] sort(String[] words) {  //bubble sort
@@ -303,7 +289,7 @@ public class Index5 {
         return words;
     }
 
-     //---------------------------------
+    //---------------------------------
     /** A method to store the index in a given file name after building it  */
     public void store(String storageName) {
         //try storing the index in a given file name
@@ -360,7 +346,7 @@ public class Index5 {
         if (f.exists() && !f.isDirectory())
             return true;
         return false;
-            
+
     }
 //----------------------------------------------------
 
@@ -371,14 +357,14 @@ public class Index5 {
             Writer wr = new FileWriter(pathToStorage);
             wr.write("end" + "\n");
             wr.close();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 //----------------------------------------------------
-     /** A method to load index from hard disk into memory */
-     //load index from hard disk into memory
+    /** A method to load index from hard disk into memory */
+    //load index from hard disk into memory
     public HashMap<String, DictEntry> load(String storageName) {
         //try opening the file to read for it
         try {
@@ -438,7 +424,7 @@ public class Index5 {
 
                 // posting list of the index
                 for (int i = 0; i < ss1b.length; i++) {
-                   //split the strings each ',' to indicate each document the word is mentioned
+                    //split the strings each ',' to indicate each document the word is mentioned
                     ss1bx = ss1b[i].split(",");
                     // if the documents and the frequency of the words is null
                     if (index.get(ss1a[0]).pList == null) {
@@ -456,7 +442,7 @@ public class Index5 {
             System.out.println("============= END LOAD =============");
             //    printDictionary();
         }
-        //catch the opening the file exception 
+        //catch the opening the file exception
         catch (Exception e) {
 
             e.printStackTrace();
@@ -466,4 +452,3 @@ public class Index5 {
     }
 }
 
-//=====================================================================

@@ -4,6 +4,8 @@
  */
 package invertedIndex;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author ehab
@@ -14,13 +16,21 @@ public class Posting {
     public Posting next = null;
     int docId;
     int dtf = 1;
+    public ArrayList<Integer> positions;
 
     Posting(int id, int t) {
-        docId = id;
-        dtf=t;
+        this.docId = id;
+        this.dtf=t;
+        this.positions = new ArrayList<Integer>();
     }
     
     Posting(int id) {
-        docId = id;
+        this.docId = id;
+        this.positions = new ArrayList<Integer>();
+    }
+    // Method to add a position to the positions list
+    public void addPosition(int position) {
+        this.positions.add(position);
+        this.dtf++; // Increase term frequency each time a position is added
     }
 }

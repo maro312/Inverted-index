@@ -1,47 +1,46 @@
 package invertedIndex;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class PosIndex extends Index5 {
-    //--------------------------------------------
-    int N = 0;
-    public Map<Integer, SourceRecord> sources;  // store the doc_id and the file name.
 
-    public HashMap<String, DictEntry> index; // The inverted index
 
-    //--------------------------------------------
 
     public PosIndex() {
-
-        sources = new HashMap<Integer, SourceRecord>();
-        index = new HashMap<String, DictEntry>();
+        super();
     }
 
-    public void setN(int n) {
-        N = n;
-    }
 
 
     //---------------------------------------------
 
-    /** A method  to print the posting list of each word */
+    /** A method to print the posting list of each word with positions included */
     public void printPostingList(Posting p) {
-        //loop and the posting list after outputting the first [
+        // Start the posting list output
         System.out.print("[");
         while (p != null) {
-            /// -4- **** complete here ****
-            // fix get rid of the last comma
+            // Print document ID and associated positions
+            System.out.print(p.docId + ":[");
+            // Iterate over positions to print them
+            if (!p.positions.isEmpty()) {
+                for (int i = 0; i < p.positions.size(); i++) {
+                    if (i < p.positions.size() - 1) {
+                        System.out.print(p.positions.get(i) + ", ");
+                    } else {
+                        System.out.print(p.positions.get(i));  // Last position without a trailing comma
+                    }
+                }
+            }
+            System.out.print("]");  // Close the positions list
+
+            // If there's a next posting, prepare for the next entry
             if (p.next != null) {
-                System.out.print("" + p.docId + "," );
-            }else {
-                //to get rid of the comma, check if it's the last element
-                System.out.print("" + p.docId );
+                System.out.print(", ");
             }
             p = p.next;
         }
+        // Close the entire posting list
         System.out.println("]");
     }
 
@@ -88,7 +87,8 @@ public class PosIndex extends Index5 {
                 while ((ln = file.readLine()) != null) {
                     /// -2- **** complete here ****
                     //increase the file length by the number of words of each line
-                    flen += indexOneLine(ln,fid);
+                    flen += indexOneLine(ln,fid,pos);
+                    pos += ln.split("\\W+").length;
                     ///**** hint   flen +=  ________________(ln, fid);
                 }
                 // store the length of the file in the sources attribute
@@ -107,7 +107,7 @@ public class PosIndex extends Index5 {
 
     //----------------------------------------------------------------------------
     /** A method to split te words of each line and fix them to be appropriate for storing (Tokenize)*/
-    public int indexOneLine(String ln, int fid) {
+    public int indexOneLine(String ln, int fid,int pos) {
         //start with file length = 0
         int flen = 0;
         //remove the spaces between each word in the line read (split) and store in array
@@ -122,17 +122,17 @@ public class PosIndex extends Index5 {
             word = word.toLowerCase();
             // remove the stop words
             if (stopWord(word)) {
+                pos++;
                 continue;
             }
             //stream the word
             word = stemWord(word);
             // check to see if the word is not in the dictionary
             // if not add it
-
-
             if (!index.containsKey(word)) {
                 index.put(word, new DictEntry());
             }
+
             // add document id to the posting list
             if (!index.get(word).postingListContains(fid)) {
                 index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term
@@ -145,9 +145,12 @@ public class PosIndex extends Index5 {
                 }
             } else {
                 index.get(word).last.dtf += 1;
+
             }
             //set the term_fteq in the collection
+            index.get(word).last.addPosition(pos);
             index.get(word).term_freq += 1;
+            pos++;
             if (word.equalsIgnoreCase("lattice")) {
 
                 System.out.println("  <<" + index.get(word).getPosting(1) + ">> " + ln);
@@ -157,83 +160,78 @@ public class PosIndex extends Index5 {
         return flen;
     }
 
-//----------------------------------------------------------------------------
-    /** A method identify stop words that needs to be removed */
-    boolean stopWord(String word) {
-        if (word.equals("the") || word.equals("to") || word.equals("be") || word.equals("for") || word.equals("from") || word.equals("in")
-                || word.equals("a") || word.equals("into") || word.equals("by") || word.equals("or") || word.equals("and") || word.equals("that")) {
-            return true;
-        }
-        if (word.length() < 2) {
-            return true;
-        }
-        return false;
 
-    }
-//----------------------------------------------------------------------------
-    /** A method stem word (bring it to original form )  Yet to be implemented */
-    String stemWord(String word) { //skip for now
-        return word;
-//        Stemmer s = new Stemmer();
-//        s.addString(word);
-//        s.stem();
-//        return s.toString();
-    }
+
 
     //----------------------------------------------------------------------------
 
-    /** A method to find intersections between 2 posting lists and return one posting list (find if 2 words are mentioned in the same document )  */
-    Posting intersect(Posting pL1, Posting pL2) {
-///****  -1-   complete after each comment ****
-//   INTERSECT ( p1 , p2 )
-//          1  answer ←      {}
-        //initialize the answer and the last posting lists with nulls
-        Posting answer = null;
-        Posting last = null;
-//      2 while p1  != NIL and p2  != NIL
-        // loop on both posting lists
-        while (pL1 != null && pL2 != null){
-//          3 do if docID ( p 1 ) = docID ( p2 )
+    public Posting intersect(Posting pL1, Posting pL2) {
+        Posting answer = null, last = null;
 
-            // if any of them have the same document id
+        while (pL1 != null && pL2 != null) {
             if (pL1.docId == pL2.docId) {
-//          4   then ADD ( answer, docID ( p1 ))
-//              answer.add(pL1.docId);
+                ArrayList<Integer> l = new ArrayList<>();
 
-                Posting newPosting = new Posting(pL1.docId , pL1.dtf) ;
+                int i = 0, j = 0;
+                while (i < pL1.positions.size()) {
+                    while (j < pL2.positions.size()) {
+                        int pos1 = pL1.positions.get(i);
+                        int pos2 = pL2.positions.get(j);
 
-                if (answer == null ) {
-                    answer = newPosting ;
-                    last = newPosting ;
-                }else {
-                    last.next = newPosting ;
-                    last = newPosting ;
+                        if (Math.abs(pos1 - pos2) <= 2) {
+                            l.add(pos2);
+                            j++;
+                        } else if (pos2 > pos1) {
+                            break;
+                        } else {
+                            j++;
+                        }
+                    }
+
+                    while (!l.isEmpty() && Math.abs(l.get(0) - pL1.positions.get(i)) > 2) {
+                        l.remove(0);
+                    }
+
+                    for (int ps : l) {
+                        if (answer == null) {
+                            answer = new Posting(pL1.docId);
+                            last = answer;
+                            last.addPosition(pL1.positions.get(i));
+                            last.addPosition(ps);
+                        } else {
+                            if (last.docId == pL1.docId) {
+                                last.addPosition(pL1.positions.get(i));
+                                last.addPosition(ps);
+                            } else {
+                                last.next = new Posting(pL1.docId);
+                                last = last.next;
+                                last.addPosition(pL1.positions.get(i));
+                                last.addPosition(ps);
+                            }
+                        }
+                    }
+                    i++;
                 }
-                pL1 = pL1.next ;
-                pL2 = pL2.next ;
-//          5       p1 ← next ( p1 )
-//          6       p2 ← next ( p2 )
-                // if they don't have the same doc id and one is bigger, move the smaller to the next (as they are sorted )
-            }else {
-//          7   else if docID ( p1 ) < docID ( p2 )
-                if (pL1.docId < pL2.docId) {
-//          8        then p1 ← next ( p1 )
-                    pL1 = pL1.next ;
-                }else {
-//          9        else p2 ← next ( p2 )
-                    pL2 = pL2.next ;
-                }
+                pL1 = pL1.next;
+                pL2 = pL2.next;
+            } else if (pL1.docId < pL2.docId) {
+                pL1 = pL1.next;
+            } else {
+                pL2 = pL2.next;
             }
         }
         return answer;
     }
 
+
     /** A method to print the titles/URLs that all the words in a query exist in  */
-    public String find_24_01(String phrase) { // any mumber of terms non-optimized search
+    public String find_24_01(String phrase) {
+        // any mumber of terms non-optimized search
         //initialize result with empty string
         String result = "";
         //split/remove spaces form the phrase/query
         String[] words = phrase.split("\\W+");
+
         //get the length of the query
         int len = words.length;
 
@@ -247,8 +245,15 @@ public class PosIndex extends Index5 {
             //loop on the rest of the query
             while (i < len) {
                 //try to get the posting list of the document that contains all words
+                if (stopWord(words[i])){
+                    i++;
+                    continue;
+                }
                 posting = intersect(posting, index.get(words[i].toLowerCase()).pList);
                 i++;
+            }
+            if (posting == null ){
+                throw new ClassNotFoundException();
             }
             while (posting != null) {
                 //System.out.println("\t" + sources.get(num));
@@ -264,29 +269,6 @@ public class PosIndex extends Index5 {
             System.out.println("Not a valid search query");
         }
         return result;
-    }
-
-
-    //---------------------------------
-    /** A method  to sort the words list of alphabetically  */
-    String[] sort(String[] words) {  //bubble sort
-        boolean sorted = false;
-        String sTmp;
-        //-------------------------------------------------------
-        // using bubble sort to compare each word with the next
-        while (!sorted) {
-            sorted = true;
-            for (int i = 0; i < words.length - 1; i++) {
-                int compare = words[i].compareTo(words[i + 1]);
-                if (compare > 0) {
-                    sTmp = words[i];
-                    words[i] = words[i + 1];
-                    words[i + 1] = sTmp;
-                    sorted = false;
-                }
-            }
-        }
-        return words;
     }
 
     //---------------------------------
@@ -324,6 +306,12 @@ public class PosIndex extends Index5 {
                 while (p != null) {
                     //    System.out.print( p.docId + "," + p.dtf + ":");
                     wr.write(p.docId + "," + p.dtf + ":");
+                    for (int i = 0; i < p.positions.size(); i++) {
+                        wr.write(p.positions.get(i).toString());
+                        if (i < p.positions.size() - 1) {
+                            wr.write(","); // Separate positions with a comma
+                        }
+                    }
                     p = p.next;
                 }
                 wr.write("\n");
@@ -338,37 +326,14 @@ public class PosIndex extends Index5 {
             e.printStackTrace();
         }
     }
-//=========================================
-    /** A method find if the index is stored correctly or not  */
-    public boolean storageFileExists(String storageName){
-        java.io.File f = new java.io.File("C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl"+storageName);
 
-        if (f.exists() && !f.isDirectory())
-            return true;
-        return false;
-
-    }
-//----------------------------------------------------
-
-    /** A method to add a new storage space   */
-    public void createStore(String storageName) {
-        try {
-            String pathToStorage = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl"+storageName;
-            Writer wr = new FileWriter(pathToStorage);
-            wr.write("end" + "\n");
-            wr.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 //----------------------------------------------------
     /** A method to load index from hard disk into memory */
     //load index from hard disk into memory
     public HashMap<String, DictEntry> load(String storageName) {
         //try opening the file to read for it
         try {
-            String pathToStorage = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl"+storageName;
+            String pathToStorage = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl\\"+storageName;
             sources = new HashMap<Integer, SourceRecord>();
             index = new HashMap<String, DictEntry>();
             //open file for reading

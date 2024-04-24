@@ -17,7 +17,7 @@ import java.util.concurrent.Phaser;
 public class Test {
 
     public static void main(String args[]) throws IOException {
-        BiIndex index = new BiIndex();
+        PosIndex index = new PosIndex();
         //|**  change it to your collection directory 
         //|**  in windows "C:\\tmp11\\rl\\collection\\"       
         String files = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl\\collection\\";
@@ -35,7 +35,7 @@ public class Test {
         }
 
         index.buildIndex(fileList);
-        index.store("BiIndex");
+        index.store("PosIndex");
         index.printDictionary();
 
 
@@ -47,7 +47,7 @@ public class Test {
 //        }
         String phrase = "";
         do {
-            System.out.println("Print search phrase: ");
+            System.out.println("Please enter search phrase: ");
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             phrase = in.readLine();
             Boolean nonAutomated = true;

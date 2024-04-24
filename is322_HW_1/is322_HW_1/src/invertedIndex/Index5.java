@@ -143,7 +143,6 @@ public class Index5 {
             // check to see if the word is not in the dictionary
             // if not add it
 
-
             if (!index.containsKey(word)) {
                 index.put(word, new DictEntry());
             }

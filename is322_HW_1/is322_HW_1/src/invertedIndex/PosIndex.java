@@ -122,7 +122,6 @@ public class PosIndex extends Index5 {
             word = word.toLowerCase();
             // remove the stop words
             if (stopWord(word)) {
-                pos++;
                 continue;
             }
             //stream the word
@@ -178,7 +177,7 @@ public class PosIndex extends Index5 {
                         int pos1 = pL1.positions.get(i);
                         int pos2 = pL2.positions.get(j);
 
-                        if (Math.abs(pos1 - pos2) <= 2) {
+                        if (Math.abs(pos1 - pos2) <= 1) {
                             l.add(pos2);
                             j++;
                         } else if (pos2 > pos1) {
@@ -188,7 +187,7 @@ public class PosIndex extends Index5 {
                         }
                     }
 
-                    while (!l.isEmpty() && Math.abs(l.get(0) - pL1.positions.get(i)) > 2) {
+                    while (!l.isEmpty() && Math.abs(l.get(0) - pL1.positions.get(i)) > 1) {
                         l.remove(0);
                     }
 

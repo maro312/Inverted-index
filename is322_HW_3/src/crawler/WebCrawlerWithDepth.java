@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class WebCrawlerWithDepth {
 
-    private static final int MAX_DEPTH =2;
+    private static final int MAX_DEPTH = 10;
     private static final int MAX_PER_PAGE = 6;
     int max_docs = 20;
     private HashSet<String> links;
@@ -85,15 +85,50 @@ public class WebCrawlerWithDepth {
                 && (!URL.isEmpty())
                 && (!URL.contains("Main_Page"))
                 && (!URL.contains("mw-head"))) {
+
+            try{
+                //4. (1) If not add it to the index
+                if (links.add(URL)) {
+                    System.out.println(URL);
+                }
+                //2. Fetch the HTML code
+                Document document = Jsoup.connect(URL).get();//soup jar to extract web data
+                //3. Parse the HTML to extract links to other URLS
+                Elements linksOnPage = document.select("a[href]");
+
+                Elements paragraphs = document.getElementsByTag("p");
+
+                StringBuilder docText = new StringBuilder(new String());
+                for (Element paragraph : paragraphs) {
+                     docText.append(paragraph.text());
+                }
+                SourceRecord sr = new SourceRecord(fid, URL, document.title(), docText.substring(0, 30));
+                sr.length = docText.length();
+                sources.put(fid, sr);
+
+                plinks++;  // accumulator for thel link in a sub-branch
+                fid++;
+
+                //5. For each extracted URL... go back to Step 4.
+                for (Element page: linksOnPage) {
+                    getPageLinks(page.attr("abs.href"),depth,index);
+                }
+                 plinks--;
+
+            } catch (IOException e) {
+                System.err.println("For " + URL + ":" + e.getMessage());
+            }
+
+
          //   try {
-                //??????------------------------------------------------------------------------                
+                //??????------------------------------------------------------------------------
                 // *** 1-  add this URL tl the  visited list
                 //                links.add(URL);
                 // inititailiz the document element using the Jsoup library
 
-                
-                //??????------------------------------------------------------------------------                
-                // *** 2-  get all links of the page         
+
+                //??????------------------------------------------------------------------------
+                // *** 2-  get all links of the page
                 // use document select  with parameter "a[href]")
                 
                 
@@ -104,7 +139,7 @@ public class WebCrawlerWithDepth {
                 //??????------------------------------------------------------------------------
                 //**** 4-  get the text inside those parargraphs inside the tags <p></p>
                 //***       accumulate then into  to String docText
-               String docText = "";
+               //String docText = "";
 
 
               //****     build the sourses (given)
@@ -113,12 +148,10 @@ public class WebCrawlerWithDepth {
                 //sources.put(fid, sr);
                 
                 //??????------------------------------------------------------------------------
-                //**** 5-  pass the cocText for the inverted index with the doc id
-                
-                
-                
-                plinks++;  // accumulator for thel link in a sub-branch
-                fid++;   // current document id
+                //**** 5-  pass the docText for the inverted index with the doc id
+
+//                plinks++;  // accumulator for thel link in a sub-branch
+//                fid++;   // current document id
                
 
                // for (Element page : linksOnPage) {
@@ -130,22 +163,7 @@ public class WebCrawlerWithDepth {
        //         System.err.println("For '" + URL + "': " + e.getMessage());
        //     }
 
-            try{
-                //4. (1) If not add it to the index
-                if (links.add(URL)) {
-                    System.out.println(URL);
-                }
-                //2. Fetch the HTML code
-                    Document document = Jsoup.connect(URL).get();//soup jar to extract web data
-                    //3. Parse the HTML to extract links to other URLS
-                    Elements linksOnPage = document.select("a[href]");
-                    //5. For each extracted URL... go back to Step 4.
-                    for (Element page: linksOnPage) {
-                        getPageLinks(page.attr("abs.href"),depth,index);
-                    }
-                } catch (IOException e) {
-                System.err.println("For " + URL + ":" + e.getMessage());
-            }
+
         }
     }
 //==============================================================================

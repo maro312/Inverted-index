@@ -299,7 +299,7 @@ public void searchLoop() {
 
     public void store(String storageName) {
         try {
-            String pathToStorage = "/home/ehab/tmp11/rl/"+storageName;
+            String pathToStorage = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl\\"+storageName;
             Writer wr = new FileWriter(pathToStorage);
             for (Map.Entry<Integer, SourceRecord> entry : sources.entrySet()) {
                 System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue().URL + ", Value = " + entry.getValue().title + ", Value = " + entry.getValue().text);
@@ -336,7 +336,7 @@ public void searchLoop() {
     }
 //=========================================    
     public boolean storageFileExists(String storageName){
-        java.io.File f = new java.io.File("/home/ehab/tmp11/rl/"+storageName);
+        java.io.File f = new java.io.File("C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl\\"+storageName);
         if (f.exists() && !f.isDirectory())
             return true;
         return false;
@@ -345,7 +345,7 @@ public void searchLoop() {
 //----------------------------------------------------    
     public void createStore(String storageName) {
         try {
-            String pathToStorage = "/home/ehab/tmp11/"+storageName;
+            String pathToStorage = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\"+storageName;
             Writer wr = new FileWriter(pathToStorage);
             wr.write("end" + "\n");
             wr.close();

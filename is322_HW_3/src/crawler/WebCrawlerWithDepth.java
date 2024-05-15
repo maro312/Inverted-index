@@ -119,53 +119,61 @@ public class WebCrawlerWithDepth {
                 System.err.println("For " + URL + ":" + e.getMessage());
             }
 
-
-         //   try {
-                //??????------------------------------------------------------------------------
-                // *** 1-  add this URL tl the  visited list
-                //                links.add(URL);
-                // inititailiz the document element using the Jsoup library
+        // start
+            try {
+                links.add(URL);
 
 
-                //??????------------------------------------------------------------------------
-                // *** 2-  get all links of the page
-                // use document select  with parameter "a[href]")
-                
-                
-                //??????------------------------------------------------------------------------
-                // *** 3-  get all  paragtaphs <p></p>  elments from the page (document)
+//                 inititailiz the document element using the Jsoup library
+                Document document = Jsoup.connect(URL).get();
+
+
+//                 *** 2-  get all links of the page
+//                 use document select  with parameter "a[href]")
+                Elements linksOnPage = document.select("a[href]");
 
                 
-                //??????------------------------------------------------------------------------
-                //**** 4-  get the text inside those parargraphs inside the tags <p></p>
-                //***       accumulate then into  to String docText
-               //String docText = "";
+//                ??????------------------------------------------------------------------------
+//                 *** 3-  get all  paragtaphs <p></p>  elments from the page (document)
+                Elements paragraphs = document.getElementsByTag("p");
 
-
-              //****     build the sourses (given)
-               //SourceRecord sr = new SourceRecord(fid, URL, document.title(), docText.substring(0, 30));
-                //sr.length = docText.length();
-                //sources.put(fid, sr);
                 
-                //??????------------------------------------------------------------------------
-                //**** 5-  pass the docText for the inverted index with the doc id
+//                ??????------------------------------------------------------------------------
+//                **** 4-  get the text inside those parargraphs inside the tags <p></p>
+//                ***       accumulate then into  to String docText
+//               String docText = "";
+                StringBuilder docText = new StringBuilder();
+                for (Element paragraph : paragraphs) {
+                    docText.append(paragraph.text());
+                }
 
-//                plinks++;  // accumulator for thel link in a sub-branch
-//                fid++;   // current document id
+
+//              ****     build the sourses (given)
+               SourceRecord sr = new SourceRecord(fid, URL, document.title(), docText.substring(0, 30));
+                sr.length = docText.length();
+                sources.put(fid, sr);
+                
+//                ??????------------------------------------------------------------------------
+//                **** 5-  pass the docText for the inverted index with the doc id
+
+                plinks++;  // accumulator for thel link in a sub-branch
+                fid++;   // current document id
                
 
-               // for (Element page : linksOnPage) {
-                //**** 6-  handle all the page hyper links "linksOnPage" you obtained from step 2 recursivly with depth +1
-                //             Hint ::    Use  page.attr("abs:href") for each page
-             //    }
-                // plinks--;
-       //     } catch (IOException e) {
-       //         System.err.println("For '" + URL + "': " + e.getMessage());
-       //     }
+                for (Element page : linksOnPage) {
+                **** 6-  handle all the page hyper links "linksOnPage" you obtained from step 2 recursivly with depth +1
+                             Hint ::    Use  page.attr("abs:href") for each page
+                 }
+                 plinks--;
+            } catch (IOException e) {
+                System.err.println("For '" + URL + "': " + e.getMessage());
+            }
 
 
         }
     }
+
+    // end
 //==============================================================================
 
     public void parsePageLinks(String URL, int depth, invertedIndex.Index5 index) {

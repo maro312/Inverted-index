@@ -68,7 +68,7 @@ public class Index5 {
         System.out.println("------------------------------------------------------");
         System.out.println("*** Number of terms = " + index.size());
     }
-     //----------------------------------------------------------------------------  
+     //----------------------------------------------------------------------------
     public int buildIndex(String ln, int fid) {
         int flen = 0;
 
@@ -87,7 +87,7 @@ public class Index5 {
             }
             // add document id to the posting list
             if (!index.get(word).postingListContains(fid)) {
-                index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term 
+                index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term
                 if (index.get(word).pList == null) {
                     index.get(word).pList = new Posting(fid);
                     index.get(word).last = index.get(word).pList;
@@ -133,7 +133,7 @@ public class Index5 {
         //   printDictionary();
     }
 
-    //----------------------------------------------------------------------------  
+    //----------------------------------------------------------------------------
     public int indexOneLine(String ln, int fid) {
         int flen = 0;
 
@@ -153,7 +153,7 @@ public class Index5 {
             }
             // add document id to the posting list
             if (!index.get(word).postingListContains(fid)) {
-                index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term 
+                index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term
                 if (index.get(word).pList == null) {
                     index.get(word).pList = new Posting(fid);
                     index.get(word).last = index.get(word).pList;
@@ -175,7 +175,7 @@ public class Index5 {
         return flen;
     }
 
-//----------------------------------------------------------------------------  
+//----------------------------------------------------------------------------
     boolean stopWord(String word) {
         if (word.equals("the") || word.equals("to") || word.equals("be") || word.equals("for") || word.equals("from") || word.equals("in")
                 || word.equals("a") || word.equals("into") || word.equals("by") || word.equals("or") || word.equals("and") || word.equals("that")) {
@@ -187,7 +187,7 @@ public class Index5 {
         return false;
 
     }
-//----------------------------------------------------------------------------  
+//----------------------------------------------------------------------------
 
     String stemWord(String word) { //skip for now
         return word;
@@ -197,7 +197,7 @@ public class Index5 {
 //        return s.toString();
     }
 
-    //----------------------------------------------------------------------------  
+    //----------------------------------------------------------------------------
     Posting intersect(Posting pL1, Posting pL2) {
 ///****  -1-   complete after each comment ****
 //   INTERSECT ( p1 , p2 )
@@ -205,20 +205,20 @@ public class Index5 {
         Posting answer = null;
         Posting last = null;
 //      2 while p1  != NIL and p2  != NIL
-     
+
 //          3 do if docID ( p 1 ) = docID ( p2 )
- 
+
 //          4   then ADD ( answer, docID ( p1 ))
                 // answer.add(pL1.docId);
- 
+
 //          5       p1 ← next ( p1 )
 //          6       p2 ← next ( p2 )
- 
+
  //          7   else if docID ( p1 ) < docID ( p2 )
-            
+
 //          8        then p1 ← next ( p1 )
 //          9        else p2 ← next ( p2 )
- 
+
 //      10 return answer
         return answer;
     }
@@ -243,7 +243,7 @@ public class Index5 {
         }
         return words;
     }
-//==========================================================    
+//==========================================================
    public String find_07a(String phrase) {
         System.out.println("-------------------------  find_07 -------------------------");
 
@@ -255,6 +255,29 @@ public class Index5 {
         double scores[] = new double[N];
         double qwt[] = new double[len];
         double qnz[] = new double[len];
+        //1
+       // scores[N] = 0;
+        //2
+//        int length[] = new int[N];
+//        length[N] = 0;
+
+      // 3
+
+//       for (String term : words){
+//           //4
+//           term = term.toLowerCase();
+//           int tdf = index.get(term).doc_freq;
+//           int ttf = index.get(term).term_freq;
+//           //4.a
+//           double idf = log10(N/(double)tdf);
+//
+//           for ( p : index.get(term).pList) {
+//               // 6. Add the term score for (term/doc) to the score of each doc
+//               scores[p.docId] += (1 + Math.log10((double) p.dtf)) * idf;
+//           }
+//
+//       }
+
 
 //1 float Scores[N] = 0
 //2 Initialize Length[N]
@@ -334,27 +357,27 @@ public void searchLoop() {
             e.printStackTrace();
         }
     }
-//=========================================    
+//=========================================
     public boolean storageFileExists(String storageName){
         java.io.File f = new java.io.File("C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\rl\\"+storageName);
         if (f.exists() && !f.isDirectory())
             return true;
         return false;
-            
+
     }
-//----------------------------------------------------    
+//----------------------------------------------------
     public void createStore(String storageName) {
         try {
             String pathToStorage = "C:\\Users\\DELL\\Desktop\\IR\\Inverted-index\\tmp11\\tmp11\\"+storageName;
             Writer wr = new FileWriter(pathToStorage);
             wr.write("end" + "\n");
             wr.close();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
 }
 
 //=====================================================================
